@@ -21,7 +21,7 @@ def store_chunks_in_qdrant(chunks):
             PointStruct(
     id=abs(hash(str(chunk["_id"]))) % 1000000000000,
     vector=embedding,
-    payload={
+   payload={
     "document_id": chunk["document_id"],
     "workspace_id": chunk["workspace_id"],
     "filename": chunk["filename"],

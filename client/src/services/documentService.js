@@ -25,3 +25,19 @@ export const embedDocument =
 
         return response.data;
     };
+
+export const generateSummary =
+  async (documentId) => {
+
+  const response =
+    await axios.post(
+      `${API_BASE_URL}/documents/summary/${documentId}`
+    );
+
+  return response.data;
+};
+
+export const getDocumentUrl = (
+  documentId
+) =>
+  `${API_BASE_URL}/documents/view/${documentId}`;

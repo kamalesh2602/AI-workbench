@@ -12,7 +12,6 @@ router = APIRouter(
     tags=["Chat"]
 )
 
-
 @router.post("/ask")
 def ask_question(chat: ChatRequest):
 
@@ -27,31 +26,25 @@ def ask_question(chat: ChatRequest):
     ]
 
     sources = []
+    seen_files = set()
 
     for point in points:
 
-        document = db.documents.find_one(
-            {
-                "_id": ObjectId(
-                    point.payload["document_id"]
-                )
-            }
+        filename = point.payload.get(
+            "filename",
+            "Unknown"
         )
 
-    sources.append(
-        {
-            "filename":
-                document["filename"]
-                if document
-                else "Unknown",
+        if filename not in seen_files:
 
-            "chunk_index":
-                point.payload["chunk_index"],
+            sources.append(
+                {
+                    "filename": filename
+                }
+            )
 
-            "score":
-                round(point.score, 3)
-        }
-    )
+            seen_files.add(filename)
+               
 
     answer = generate_answer(
         chat.question,
@@ -69,6 +62,7 @@ def ask_question(chat: ChatRequest):
         "answer": answer,
         "sources": sources
     }
+
 
 @router.get("/history/{workspace_id}")
 def get_chat_history(

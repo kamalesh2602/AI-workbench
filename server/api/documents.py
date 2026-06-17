@@ -19,6 +19,10 @@ from services.search_service import search_chunks
 from services.chat_service import generate_answer
 from services.search_service import get_context_chunks
 from services.vector_service import delete_document_vectors
+from services.summary_service import  generate_summary
+from fastapi.responses import FileResponse
+from services.suggestion_service import generate_questions
+
 
 router = APIRouter(
     prefix="/documents",
@@ -240,10 +244,11 @@ def process_document(
     chunks = chunk_text(text)
 
     count = store_chunks(
-        document_id,
-        document["workspace_id"],
-        chunks
-    )
+    document_id,
+    document["workspace_id"],
+    document["filename"],
+    chunks
+)
 
     return {
         "chunks_created": count
@@ -322,15 +327,96 @@ def qdrant_version():
 
 
 @router.get("/search")
-def test_search(query: str):
+def test_search(
+    query: str,
+    workspace_id: str
+):
 
-    results = search_chunks(query)
+    results = search_chunks(
+        query,
+        workspace_id
+    )
 
     return [
-    {
-        "score": point.score,
-        "chunk_text": point.payload["chunk_text"]
-    }
-    for point in results.points
-]
+        {
+            "score": point.score,
+            "chunk_text": point.payload["chunk_text"]
+        }
+        for point in results.points
+    ]
 
+@router.post("/summary/{document_id}")
+def create_summary(
+    document_id: str
+):
+    document = db.documents.find_one(
+    {
+        "_id": ObjectId(document_id)
+    }
+)
+    text = extract_pdf_text(
+    document["file_path"]
+)
+    text = text[:5000]
+    summary = generate_summary(
+    text
+)
+    questions = generate_questions(
+    text
+)
+
+    db.documents.update_one(
+        {
+            "_id": ObjectId(document_id)
+        },
+        {
+            "$set": {
+                "summary": summary,
+                "suggested_questions": questions
+            }
+        }
+    )
+    
+    return {
+    "summary": summary
+}
+
+@router.get("/view/{document_id}")
+def view_document(
+    document_id: str
+):
+
+    try:
+        object_id = ObjectId(document_id)
+
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid document id"
+        )
+
+    document = db.documents.find_one(
+        {
+            "_id": object_id
+        }
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+
+    if not os.path.exists(
+        document["file_path"]
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="Physical file not found"
+        )
+
+    return FileResponse(
+        document["file_path"],
+        media_type="application/pdf",
+       filename=document["filename"]  #if commented this out it will not prompt for downloading 
+    )

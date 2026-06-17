@@ -69,3 +69,14 @@ export const deleteDocument = async (documentId) => {
 
     return response.data;
 };
+
+export const getRecentWorkspaces =
+  async () => {
+
+    const response =
+      await axios.get(
+        `${API}/recent`
+      );
+
+    return response.data;
+};

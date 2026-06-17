@@ -62,6 +62,29 @@ def get_workspaces():
 
     return workspaces
 
+@router.get("/recent")
+def get_recent_workspaces():
+
+    workspaces = []
+
+    cursor = (
+        db.workspaces
+        .find()
+        .sort("created_at", -1)
+        .limit(5)
+    )
+
+    for workspace in cursor:
+
+        workspace["_id"] = str(
+            workspace["_id"]
+        )
+
+        workspaces.append(
+            workspace
+        )
+
+    return workspaces
 
 @router.get("/{workspace_id}")
 def get_workspace(workspace_id: str):
@@ -131,3 +154,5 @@ def delete_workspace(workspace_id: str):
     return {
         "message": "Workspace deleted"
     }
+
+
