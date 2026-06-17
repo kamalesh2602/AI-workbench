@@ -1,19 +1,47 @@
 from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+
+from bson import ObjectId
+
 from models.chat import ChatRequest
 
 from services.chat_service import generate_answer
 from services.search_service import get_context_chunks
 from services.chat_history_service import save_chat
+from services.current_user import get_current_user
+
 from db.mongo import db
-from bson import ObjectId
+
 
 router = APIRouter(
     prefix="/chat",
     tags=["Chat"]
 )
 
+
 @router.post("/ask")
-def ask_question(chat: ChatRequest):
+def ask_question(
+    chat: ChatRequest,
+    current_user=Depends(get_current_user)
+):
+
+    workspace = db.workspaces.find_one(
+        {
+            "_id": ObjectId(
+                chat.workspace_id
+            ),
+            "user_id": str(
+                current_user["_id"]
+            )
+        }
+    )
+
+    if not workspace:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     points = get_context_chunks(
         chat.question,
@@ -43,8 +71,9 @@ def ask_question(chat: ChatRequest):
                 }
             )
 
-            seen_files.add(filename)
-               
+            seen_files.add(
+                filename
+            )
 
     answer = generate_answer(
         chat.question,
@@ -66,8 +95,26 @@ def ask_question(chat: ChatRequest):
 
 @router.get("/history/{workspace_id}")
 def get_chat_history(
-    workspace_id: str
+    workspace_id: str,
+    current_user=Depends(get_current_user)
 ):
+
+    workspace = db.workspaces.find_one(
+        {
+            "_id": ObjectId(
+                workspace_id
+            ),
+            "user_id": str(
+                current_user["_id"]
+            )
+        }
+    )
+
+    if not workspace:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     chats = []
 
@@ -75,11 +122,16 @@ def get_chat_history(
         {
             "workspace_id": workspace_id
         }
-    ).sort("created_at", -1)
+    ).sort(
+        "created_at",
+        -1
+    )
 
     for chat in cursor:
 
-        chat["_id"] = str(chat["_id"])
+        chat["_id"] = str(
+            chat["_id"]
+        )
 
         chats.append(chat)
 

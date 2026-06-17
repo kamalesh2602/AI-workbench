@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getWorkspace, getWorkspaceDocuments, uploadDocument, deleteDocument, } from "../services/workspaceService";
 import { askQuestion, getChatHistory } from "../services/chatService";
 import { processDocument, embedDocument, generateSummary } from "../services/documentService";
@@ -9,7 +9,7 @@ import { getDocumentUrl } from "../services/documentService";
 
 function Workspace() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const [workspace, setWorkspace] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -154,12 +154,18 @@ function Workspace() {
     <div className="workspace-container">
 
       <div className="workspace-header">
+
+        <button
+          className="back-btn"
+          onClick={() => navigate("/")}
+        >
+          ← Dashboard
+        </button>
+
         <h1>{workspace.name}</h1>
 
-        <p>
-          {workspace.description ||
-            "No description available"}
-        </p>
+        <p>{workspace.description}</p>
+
       </div>
 
       <div className="workspace-grid">

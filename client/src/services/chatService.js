@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClient from "./apiClient";
 import API_BASE_URL from "../config/api";
 
 const API = `${API_BASE_URL}/chat`;
@@ -8,7 +8,7 @@ export const askQuestion = async (
     question
 ) => {
 
-    const response = await axios.post(
+    const response = await apiClient.post(
         `${API}/ask`,
         {
             workspace_id: workspaceId,
@@ -23,7 +23,7 @@ export const getChatHistory = async (
     workspaceId
 ) => {
 
-    const response = await axios.get(
+    const response = await apiClient.get(
         `${API}/history/${workspaceId}`
     );
 

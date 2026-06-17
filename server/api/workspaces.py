@@ -3,6 +3,9 @@ from models.workspace import WorkspaceCreate
 from db.mongo import db
 from datetime import datetime
 from bson import ObjectId
+from fastapi import Depends
+from services.current_user import get_current_user
+
 
 router = APIRouter(
     prefix="/workspaces",
@@ -25,36 +28,45 @@ def serialize_workspace(workspace):
     return workspace
 
 
+
 @router.post("/")
-def create_workspace(workspace: WorkspaceCreate):
+def create_workspace(workspace: WorkspaceCreate,current_user=Depends(get_current_user)):
 
-    data = {
-        "name": workspace.name,
-        "description": workspace.description,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
-    }
+    
 
-    result = db.workspaces.insert_one(data)
+    result = db.workspaces.insert_one(
+   {
+    "name": workspace.name,
+    "description": workspace.description,
+    "user_id": str(current_user["_id"]),
+    "created_at": datetime.utcnow(),
+    "updated_at": datetime.utcnow()
+}
+)
 
     return {
-        "id": str(result.inserted_id),
-        "name": workspace.name,
-        "description": workspace.description,
-        "message": "Workspace created"
-    }
+    "name": workspace.name,
+    "description": workspace.description,
+    "user_id": str(current_user["_id"]),
+    "created_at": datetime.utcnow(),
+    "updated_at": datetime.utcnow()
+}
 
 
 @router.get("/")
-def get_workspaces():
+def get_workspaces( current_user=Depends(get_current_user)):
 
     workspaces = []
 
-    cursor = db.workspaces.find().sort(
-        "created_at",
-        -1
-    )
-
+    cursor = db.workspaces.find(
+    {
+        "user_id":
+            str(current_user["_id"])
+    }
+).sort(
+    "created_at",
+    -1
+)
     for workspace in cursor:
         workspaces.append(
             serialize_workspace(workspace)
@@ -63,13 +75,20 @@ def get_workspaces():
     return workspaces
 
 @router.get("/recent")
-def get_recent_workspaces():
+def get_recent_workspaces(current_user=Depends(get_current_user)):
 
     workspaces = []
 
     cursor = (
         db.workspaces
-        .find()
+        .find(
+            {
+                "user_id":
+                    str(
+                        current_user["_id"]
+                    )
+            }
+        )
         .sort("created_at", -1)
         .limit(5)
     )
@@ -87,13 +106,19 @@ def get_recent_workspaces():
     return workspaces
 
 @router.get("/{workspace_id}")
-def get_workspace(workspace_id: str):
+def get_workspace(workspace_id: str,current_user=Depends(get_current_user)):
 
     object_id = validate_object_id(workspace_id)
 
     workspace = db.workspaces.find_one(
-        {"_id": object_id}
-    )
+    {
+        "_id": object_id,
+        "user_id":
+            str(
+                current_user["_id"]
+            )
+    }
+)
 
     if not workspace:
         raise HTTPException(
@@ -107,13 +132,17 @@ def get_workspace(workspace_id: str):
 @router.put("/{workspace_id}")
 def update_workspace(
     workspace_id: str,
-    workspace: WorkspaceCreate
+    workspace: WorkspaceCreate, current_user=Depends(get_current_user)
 ):
 
     object_id = validate_object_id(workspace_id)
 
     result = db.workspaces.update_one(
-        {"_id": object_id},
+        {
+    "_id": object_id,
+    "user_id":
+        str(current_user["_id"])
+},
         {
             "$set": {
                 "name": workspace.name,
@@ -130,19 +159,27 @@ def update_workspace(
         )
 
     updated_workspace = db.workspaces.find_one(
-        {"_id": object_id}
-    )
+    {
+        "_id": object_id,
+        "user_id":
+            str(current_user["_id"])
+    }
+)
 
     return serialize_workspace(updated_workspace)
 
 
 @router.delete("/{workspace_id}")
-def delete_workspace(workspace_id: str):
+def delete_workspace(workspace_id: str,current_user=Depends(get_current_user)):
 
     object_id = validate_object_id(workspace_id)
 
     result = db.workspaces.delete_one(
-        {"_id": object_id}
+        {
+    "_id": object_id,
+    "user_id":
+        str(current_user["_id"])
+}
     )
 
     if result.deleted_count == 0:

@@ -1,30 +1,30 @@
-import axios from "axios";
+import apiClient from "./apiClient";
 import API_BASE_URL from "../config/api";
 
 const API = `${API_BASE_URL}/workspaces`;
 
 export const getWorkspaces = async () => {
-    const response = await axios.get(API);
+    const response = await apiClient.get(API);
     return response.data;
 };
 
 export const createWorkspace = async (workspaceData) => {
-    const response = await axios.post(API, workspaceData);
+    const response = await apiClient.post(API, workspaceData);
     return response.data;
 };
 
 export const deleteWorkspace = async (id) => {
-    const response = await axios.delete(`${API}/${id}`);
+    const response = await apiClient.delete(`${API}/${id}`);
     return response.data;
 };
 
 export const getWorkspace = async (id) => {
-    const response = await axios.get(`${API}/${id}`);
+    const response = await apiClient.get(`${API}/${id}`);
     return response.data;
 };
 
 export const getWorkspaceDocuments = async (workspaceId) => {
-    const response = await axios.get(
+    const response = await apiClient.get(
         `${API_BASE_URL}/documents/workspace/${workspaceId}`
     );
 
@@ -48,7 +48,7 @@ export const uploadDocument = async (
         file
     );
 
-    const response = await axios.post(
+    const response = await apiClient.post(
         `${API_BASE_URL}/documents/upload`,
         formData,
         {
@@ -63,7 +63,7 @@ export const uploadDocument = async (
 };
 
 export const deleteDocument = async (documentId) => {
-    const response = await axios.delete(
+    const response = await apiClient.delete(
         `${API_BASE_URL}/documents/${documentId}`
     );
 
@@ -74,7 +74,7 @@ export const getRecentWorkspaces =
   async () => {
 
     const response =
-      await axios.get(
+      await apiClient.get(
         `${API}/recent`
       );
 

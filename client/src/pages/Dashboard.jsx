@@ -113,12 +113,29 @@ function Dashboard() {
                         searchTerm.toLowerCase()
                     )
         );
+    const handleLogout = () => {
 
+        localStorage.removeItem(
+            "token"
+        );
+
+        navigate("/login");
+
+    };
     return (
         <div className="dashboard-container">
 
-            <h1>AI Workbench</h1>
+            <div className="dashboard-header">
 
+                <h1>AI Workbench</h1>
+
+                <button
+                    onClick={handleLogout}
+                >
+                    Logout
+                </button>
+
+            </div>
             {/* SEARCH */}
 
             <input

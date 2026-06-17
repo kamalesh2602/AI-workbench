@@ -39,3 +39,7 @@ from api.documents import router as document_router
 app.include_router(document_router)
 
 app.include_router(chat_router)
+
+from api.auth import router as auth_router
+
+app.include_router(auth_router)
