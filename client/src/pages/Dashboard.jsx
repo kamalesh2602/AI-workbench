@@ -122,221 +122,121 @@ function Dashboard() {
         navigate("/login");
 
     };
+
     return (
         <div className="dashboard-container">
-
             <div className="dashboard-header">
-                <h1>CogniDesk</h1>
-                <h3>AI-Powered Workspace for Research and Document Intelligence</h3>
-
-                <button
-                    onClick={handleLogout}
-                >
-                    Logout
-                </button>
-
-            </div>
-            {/* SEARCH */}
-
-            <input
-                type="text"
-                placeholder="Search workspaces..."
-                value={searchTerm}
-                onChange={(e) =>
-                    setSearchTerm(
-                        e.target.value
-                    )
-                }
-            />
-            <h2>Quick Start Templates</h2>
-
-            <div className="template-grid">
-
-                <div
-                    className="template-card"
-                    onClick={() =>
-                        navigate("/resume-analyzer")
-                    }
-                >
-
-                    <h3>
-                        📄 Resume Analyzer
-                    </h3>
-
-                    <p>
-                        Compare your resume
-                        against a job
-                        description and get
-                        AI-powered feedback.
-                    </p>
-
+                <div>
+                    <h1>CogniDesk</h1>
+                    <h3>AI-Powered Workspace for Research and Document Intelligence</h3>
                 </div>
-
-                <div className="template-card"
-                    onClick={() =>
-                        navigate(
-                            "/interview-prep"
-                        )
-                    }>
-
-                    <h3>
-                        🎯 Interview Prep
-                    </h3>
-                    <p>Prepare for your interviews</p>
-
-
-
-                </div>
-
-                <div className="template-card"
-                    onClick={() =>
-                        navigate(
-                            "/resume-rewriter"
-                        )}>
-
-                    <h3>
-                        🔬 Resume ReWriter
-                    </h3>
-
-                    <p>
-                        Rewrite your resume tailored for a job description
-                    </p>
-
-                </div>
-
-            </div>
-            {/* RECENT WORKSPACES */}
-
-            <h2>Recent Workspaces</h2>
-
-            <div className="recent-workspaces">
-
-                {recentWorkspaces.length === 0 ? (
-
-                    <p>No recent workspaces.</p>
-
-                ) : (
-
-                    recentWorkspaces.map(
-                        (workspace) => (
-
-                            <div
-                                key={workspace._id}
-                                className="recent-card"
-                                onClick={() =>
-                                    navigate(
-                                        `/workspace/${workspace._id}`
-                                    )
-                                }
-                                style={{
-                                    cursor: "pointer"
-                                }}
-                            >
-
-                                <h4>
-                                    {workspace.name}
-                                </h4>
-
-                                <p>
-                                    {
-                                        workspace.description
-                                    }
-                                </p>
-
-                            </div>
-
-                        )
-                    )
-
-                )}
-
+                <button onClick={handleLogout}>Logout</button>
             </div>
 
-            {/* CREATE WORKSPACE */}
-
-            <h2>Create Workspace</h2>
-
-            <div className="create-workspace">
-
+            {/* SEARCH BAR SPANS FULL WIDTH ABOVE PANELS */}
+            <div className="search-wrapper">
                 <input
                     type="text"
-                    placeholder="Workspace Name"
-                    value={name}
-                    onChange={(e) =>
-                        setName(
-                            e.target.value
-                        )
-                    }
+                    placeholder="Search workspaces..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                 />
-
-                <input
-                    type="text"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) =>
-                        setDescription(
-                            e.target.value
-                        )
-                    }
-                />
-
-                <button
-                    onClick={handleCreate}
-                >
-                    Create Workspace
-                </button>
-
             </div>
 
+            {/* NEW TWO-COLUMN SIDEBAR LAYOUT */}
+            <div className="dashboard-grid-layout">
 
-
-            {/* ALL WORKSPACES */}
-
-            <h2>All Workspaces</h2>
-
-            {filteredWorkspaces.length === 0 ? (
-
-                <p>No workspaces found.</p>
-
-            ) : (
-
-                filteredWorkspaces.map(
-                    (workspace) => (
-
-                        <div
-                            key={workspace._id}
-                            className="workspace-card"
-                        >
-
-                            <Link
-                                to={`/workspace/${workspace._id}`}
-                            >
-                                <h3>
-                                    {workspace.name}
-                                </h3>
-                            </Link>
-
-                            <p>
-                                {workspace.description}
-                            </p>
-
-                            <button
-                                onClick={() =>
-                                    handleDelete(
-                                        workspace._id
-                                    )
-                                }
-                            >
-                                Delete
-                            </button>
-
+                {/* LEFT SIDEBAR: QUICK START TEMPLATES */}
+                <aside className="dashboard-sidebar">
+                    <h2>Quick Start</h2>
+                    <div className="template-vertical-list">
+                        <div className="template-card" onClick={() => navigate("/resume-analyzer")}>
+                            <h3>📄 Resume Analyzer</h3>
+                            <p>Compare your resume against a job description and get AI feedback.</p>
                         </div>
 
-                    )
-                )
+                        <div className="template-card" onClick={() => navigate("/interview-prep")}>
+                            <h3>🎯 Interview Prep</h3>
+                            <p>Prepare for your technical and behavioral interviews seamlessly.</p>
+                        </div>
 
-            )}
+                        <div className="template-card" onClick={() => navigate("/resume-rewriter")}>
+                            <h3>🔬 Resume ReWriter</h3>
+                            <p>Rewrite your resume sections tailored precisely for a job description.</p>
+                        </div>
+                    </div>
+                </aside>
 
+                {/* RIGHT MAIN PANEL: ACTIONS & DATA */}
+                <main className="dashboard-main-content">
+
+                    {/* IMPROVED PREMIUM CREATE WORKSPACE BLOCK */}
+                    <section className="create-workspace-hero">
+                        <div className="hero-meta">
+                            <h2>Initialize New Workspace</h2>
+                            <p>Deploy a sandbox environment to extract entities, run vector embeddings, and interface with document context intelligence logs.</p>
+                        </div>
+                        <div className="create-fields-row">
+                            <input
+                                type="text"
+                                placeholder="Workspace Name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Description of Workspace"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                            <button onClick={handleCreate}>
+                                Deploy Workspace Environment
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* RECENT WORKSPACES */}
+                    <h2>Recent Workspaces</h2>
+                    <div className="recent-workspaces">
+                        {recentWorkspaces.length === 0 ? (
+                            <p className="empty-log-text">No active session deployments found.</p>
+                        ) : (
+                            recentWorkspaces.map((workspace) => (
+                                <div
+                                    key={workspace._id}
+                                    className="recent-card"
+                                    onClick={() => navigate(`/workspace/${workspace._id}`)}
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    <h4>{workspace.name}</h4>
+                                    <p>{workspace.description}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* ALL WORKSPACES */}
+                    <h2>All System Workspaces</h2>
+                    <div className="all-workspaces-list">
+                        {filteredWorkspaces.length === 0 ? (
+                            <p className="empty-log-text">No workspaces match queries.</p>
+                        ) : (
+                            filteredWorkspaces.map((workspace) => (
+                                <div key={workspace._id} className="workspace-card">
+                                    <div className="card-link-wrapper" onClick={() => navigate(`/workspace/${workspace._id}`)} style={{ cursor: "pointer", flex: 1 }}>
+                                        <h3>{workspace.name}</h3>
+                                        <p>{workspace.description}</p>
+                                    </div>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDelete(workspace._id); }}>
+                                        Terminate Workspace
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                </main>
+            </div>
         </div>
     );
 }

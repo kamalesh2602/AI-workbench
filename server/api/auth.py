@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from db.mongo import db
-
+from fastapi import HTTPException
 from models.user import UserRegister
 from models.user import UserLogin
 
@@ -66,11 +66,10 @@ def login_user(
     )
 
     if not existing_user:
-
-        return {
-            "message":
-            "Invalid credentials"
-        }
+        raise HTTPException(
+        status_code=401,
+        detail="Invalid credentials"
+    )
 
     valid_password = (
         verify_password(
@@ -80,11 +79,10 @@ def login_user(
     )
 
     if not valid_password:
-
-        return {
-            "message":
-            "Invalid credentials"
-        }
+        raise HTTPException(
+        status_code=401,
+        detail="Invalid credentials"
+    )
 
     token = create_access_token(
         str(existing_user["_id"])

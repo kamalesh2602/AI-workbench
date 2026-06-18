@@ -39,7 +39,8 @@ function App() {
           element={
             <ProtectedRoute>
               <InterviewPrep>
-              </InterviewPrep>            </ProtectedRoute>
+              </InterviewPrep>            
+            </ProtectedRoute>
           }
         />
         <Route

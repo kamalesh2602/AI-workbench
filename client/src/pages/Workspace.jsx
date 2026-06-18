@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Markdown from "react-markdown"; // 1. Add the markdown import at the top
 import { getWorkspace, getWorkspaceDocuments, uploadDocument, deleteDocument, } from "../services/workspaceService";
 import { askQuestion, getChatHistory } from "../services/chatService";
 import { processDocument, embedDocument, generateSummary } from "../services/documentService";
-import "../styles/workspace.css";
 import { getDocumentUrl } from "../services/documentService";
 
 
@@ -162,274 +162,135 @@ function Workspace() {
 
   return (
     <div className="workspace-container">
-
       <div className="workspace-header">
-
-        <button
-          className="back-btn"
-          onClick={() => navigate("/")}
-        >
+        <button className="back-btn" onClick={() => navigate("/")}>
           ← Dashboard
         </button>
-
         <h1>{workspace.name}</h1>
-
         <p>{workspace.description}</p>
-
       </div>
 
       <div className="workspace-grid">
 
-        {/* LEFT PANEL */}
-
+        {/* LEFT PANEL: DOCUMENTS */}
         <div className="documents-panel">
-
           <h2>Documents</h2>
-
           <div className="upload-section">
-
-            <input
-              type="file"
-              onChange={(e) =>
-                setSelectedFile(
-                  e.target.files[0]
-                )
-              }
-            />
-
-            <button
-              onClick={handleUpload}
-              disabled={uploading}
-            >
-              {
-                uploading
-                  ? "Processing..."
-                  : "Upload PDF"
-              }
+            <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])} />
+            <button onClick={handleUpload} disabled={uploading}>
+              {uploading ? "Processing..." : "Upload PDF"}
             </button>
-
           </div>
 
           {documents.length === 0 ? (
-            <p>
-              Upload a PDF to start chatting with your documents.
-            </p>
+            <p>Upload a PDF to start chatting with your documents.</p>
           ) : (
             documents.map((doc) => (
-              <div
-                key={doc._id}
-                className="document-card"
-              >
-
-                {/* HEADER */}
-
+              <div key={doc._id} className="document-card">
                 <div className="document-header">
                   <p>{doc.filename}</p>
                 </div>
 
-                {/* ACTIONS */}
-
                 <div className="document-actions">
-
-                  <button
-                    onClick={() =>
-                      setExpandedSummary(
-                        expandedSummary === doc._id
-                          ? null
-                          : doc._id
-                      )
-                    }
-                  >
-                    {
-                      expandedSummary === doc._id
-                        ? "Hide Summary"
-                        : "Show Summary"
-                    }
+                  <button onClick={() => setExpandedSummary(expandedSummary === doc._id ? null : doc._id)}>
+                    {expandedSummary === doc._id ? "Hide Summary" : "Show Summary"}
                   </button>
-
-                  <a
-                    href={getDocumentUrl(doc._id)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <a href={getDocumentUrl(doc._id)} target="_blank" rel="noreferrer" className="view-pdf-btn">
                     View PDF
                   </a>
-
-                  <button
-                    onClick={() =>
-                      handleDeleteDocument(
-                        doc._id
-                      )
-                    }
-                  >
+                  <button onClick={() => handleDeleteDocument(doc._id)}>
                     Delete
                   </button>
-
                 </div>
 
-                {/* SUMMARY */}
+                {expandedSummary === doc._id && doc.summary && (
+                  <div className="summary-box">
+                    {/* Optional: You can wrap the summary in a Markdown tag if it contains formatting */}
+                    <pre className="summary-text">{doc.summary}</pre>
+                  </div>
+                )}
 
-                {
-                  expandedSummary === doc._id &&
-                  doc.summary && (
-                    <div className="summary-box">
-                      <pre className="summary-text">
-                        {doc.summary}
-                      </pre>
-                    </div>
-                  )
-                }
-
-                {/* SUGGESTED QUESTIONS */}
-
-                {
-                  doc.suggested_questions?.length > 0 && (
-                    <div className="suggested-questions">
-
-                      <h4>
-                        Suggested Questions
-                      </h4>
-
-                      {
-                        doc.suggested_questions.map(
-                          (q, index) => (
-                            <button
-                              key={index}
-                              className="question-chip"
-                              onClick={() => {
-                                // console.log(q);
-                                // console.log(typeof q);
-                                handleAsk(q);
-                              }}
-                            >
-                              {q}
-                            </button>
-                          )
-                        )
-                      }
-
-                    </div>
-                  )
-                }
-
+                {doc.suggested_questions?.length > 0 && (
+                  <div className="suggested-questions">
+                    <h4>Suggested Questions</h4>
+                    {doc.suggested_questions.map((q, index) => (
+                      <button key={index} className="question-chip" onClick={() => handleAsk(q)}>
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}
-
         </div>
 
-        {/* RIGHT PANEL */}
-
+        {/* RIGHT PANEL: AI ASSISTANT */}
         <div className="chat-panel">
-
           <h2>AI Assistant</h2>
 
           <div className="ask-section">
-
             <input
               type="text"
               value={question}
-              onChange={(e) =>
-                setQuestion(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setQuestion(e.target.value)}
               placeholder="Ask about your documents..."
             />
-
-            <button
-              onClick={() => handleAsk()}
-              disabled={asking}
-            >
-              {
-                asking
-                  ? "Thinking..."
-                  : "Ask"
-              }
+            <button onClick={() => handleAsk()} disabled={asking}>
+              {asking ? "Thinking..." : "Ask"}
             </button>
-
           </div>
 
+          {/* 2. REPLACED LATEST ANSWER WITH THE RICH MARKDOWN FORMATTER */}
           {answer && (
-
             <div className="answer-card">
-
               <h3>Latest Answer</h3>
-
-              <p>{answer}</p>
-
+              <div className="markdown-output-card-embedded">
+                <Markdown>{answer}</Markdown>
+              </div>
             </div>
-
           )}
+
           {sources.length > 0 && (
-
             <div className="sources-card">
-
               <h3>Sources Used</h3>
-
               {sources.map((source, index) => (
-
-                <div key={index}>
-
-                  {source.type ===
-                    "document" && (
-                      <div>
-                        📄 {source.filename}
-                      </div>
-                    )}
-
-                  {source.type ===
-                    "web" && (
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        🌐 {source.title}
-                      </a>
-                    )}
-
+                <div key={index} className="source-item-log">
+                  {source.type === "document" && <span>📄 {source.filename}</span>}
+                  {source.type === "web" && (
+                    <a href={source.url} target="_blank" rel="noreferrer">
+                      🌐 {source.title}
+                    </a>
+                  )}
                 </div>
-
               ))}
-
             </div>
-
           )}
 
           <h3>Chat History</h3>
-
           {chatHistory.length === 0 ? (
-            <p>Ask your first question.</p>
+            <p className="empty-log-text">Ask your first question.</p>
           ) : (
-            chatHistory.map((chat) => (
-
-              <div
-                key={chat._id}
-                className="chat-card"
-              >
-
-                <p>
-                  <strong>You:</strong>
-                  {" "}
-                  {chat.question}
-                </p>
-
-                <p>
-                  <strong>AI:</strong>
-                  {" "}
-                  {chat.answer}
-                </p>
-
-              </div>
-
-            ))
+            <div className="chat-history-list">
+              {chatHistory.map((chat) => (
+                <div key={chat._id} className="chat-card">
+                  <div className="chat-log-line">
+                    <strong className="user-tag">You:</strong> {chat.question}
+                  </div>
+                  {/* 3. REPLACED CHAT HISTORY LINES WITH MARKDOWN PARSING */}
+                  <div className="chat-log-line ai-response-line">
+                    <strong className="ai-tag">AI:</strong>
+                    <div className="markdown-inline-block">
+                      <Markdown>{chat.answer}</Markdown>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-
         </div>
 
       </div>
-
     </div>
   );
 }

@@ -5,30 +5,35 @@ import { loginUser } from "../services/authService";
 
 function Login() {
 
-    const navigate =
-        useNavigate();
+    const navigate = useNavigate();
 
-    const [email, setEmail] =
-        useState("");
+    const [email, setEmail] = useState("");
 
     const [password, setPassword] =
         useState("");
+
+    const [error, setError] =
+        useState("");
+
     useEffect(() => {
 
-  const token =
-    localStorage.getItem(
-      "token"
-    );
+        const token =
+            localStorage.getItem(
+                "token"
+            );
 
-  if (token) {
-    navigate("/");
-  }
+        if (token) {
+            navigate("/");
+        }
 
-}, []);
+    }, []);
+
     const handleLogin =
         async () => {
 
             try {
+
+                setError("");
 
                 const data =
                     await loginUser(
@@ -45,49 +50,85 @@ function Login() {
 
             } catch (error) {
 
-                console.error(error);
+                setError(
+                    "Invalid email or password"
+                );
 
             }
         };
 
     return (
+        <div className="auth-view-wrapper">
 
-        <div>
+            <div className="auth-brand-header">
+                <h1>CogniDesk</h1>
 
-            <h1>Login</h1>
+                <p>
+                    AI-Powered Workspace for Research & Document Intelligence
+                </p>
+            </div>
 
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) =>
-                    setEmail(e.target.value)
+            <div className="auth-panel-card">
+
+                <h2>
+                    Access Terminal / Login
+                </h2>
+
+                <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) =>
+                        setEmail(
+                            e.target.value
+                        )
+                    }
+                />
+
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) =>
+                        setPassword(
+                            e.target.value
+                        )
+                    }
+                />
+
+                <button
+                    onClick={handleLogin}
+                >
+                    Initialize Session
+                </button>
+
+                {
+                    error && (
+                        <p
+                            className="error"
+                        >
+                            {error}
+                        </p>
+                    )
                 }
-            />
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) =>
-                    setPassword(e.target.value)
-                }
-            />
+                <p className="auth-switch-text">
 
-            <button
-                onClick={handleLogin}
-            >
-                Login
-            </button>
-            <p>
-                Don't have an account?
-                <Link to="/register">
-                    Register
-                </Link>
-            </p>
+                    Don't have an account?
+
+                    {" "}
+
+                    <Link
+                        to="/register"
+                    >
+                        Register New Environment
+                    </Link>
+
+                </p>
+
+            </div>
+
         </div>
-
-
     );
 }
 

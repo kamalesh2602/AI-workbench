@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate , Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-import {registerUser} from "../services/authService";
+import { registerUser } from "../services/authService";
 
 function Register() {
 
@@ -38,52 +38,46 @@ function Register() {
         };
 
     return (
+        <div className="auth-view-wrapper">
+            {/* BRAND IDENTITY HEADER */}
+            <div className="auth-brand-header">
+                <h1>CogniDesk</h1>
+                <p>AI-Powered Workspace for Research & Document Intelligence</p>
+            </div>
 
-        <div>
+            <div className="auth-panel-card">
+                <h2>Create Credentials / Register</h2>
 
-            <h1>Register</h1>
+                <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
 
-            <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) =>
-                    setName(e.target.value)
-                }
-            />
+                <input
+                    type="email"
+                    placeholder="Email Address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
 
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) =>
-                    setEmail(e.target.value)
-                }
-            />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
 
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) =>
-                    setPassword(e.target.value)
-                }
-            />
+                <button onClick={handleRegister}>
+                    Deploy Account
+                </button>
 
-            <button
-                onClick={handleRegister}
-            >
-                Register
-            </button>
-            <p>
-                Already have an account?
-                <Link to="/login">
-                    Login
-                </Link>
-            </p>
-
+                <p className="auth-switch-text">
+                    Already have an account? <Link to="/login">Login to Terminal</Link>
+                </p>
+            </div>
         </div>
-
     );
 }
 
