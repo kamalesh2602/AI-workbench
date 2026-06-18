@@ -111,8 +111,18 @@ function Workspace() {
   ) => {
 
     const query =
-      customQuestion || question;
+      typeof customQuestion === "string"
+        ? customQuestion
+        : question;
 
+    console.log(
+      "QUERY:",
+      query
+    );
+
+    console.log(
+      typeof query
+    );
     if (!query.trim()) return;
 
     try {
@@ -286,9 +296,11 @@ function Workspace() {
                             <button
                               key={index}
                               className="question-chip"
-                              onClick={() =>
-                                handleAsk(q)
-                              }
+                              onClick={() => {
+                                // console.log(q);
+                                // console.log(typeof q);
+                                handleAsk(q);
+                              }}
                             >
                               {q}
                             </button>
@@ -326,7 +338,7 @@ function Workspace() {
             />
 
             <button
-              onClick={handleAsk}
+              onClick={() => handleAsk()}
               disabled={asking}
             >
               {
@@ -357,11 +369,26 @@ function Workspace() {
 
               {sources.map((source, index) => (
 
-                <div
-                  key={index}
-                  className="source-card"
-                >
-                  📄 {source.filename}
+                <div key={index}>
+
+                  {source.type ===
+                    "document" && (
+                      <div>
+                        📄 {source.filename}
+                      </div>
+                    )}
+
+                  {source.type ===
+                    "web" && (
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        🌐 {source.title}
+                      </a>
+                    )}
+
                 </div>
 
               ))}

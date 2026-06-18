@@ -12,6 +12,9 @@ from services.chat_history_service import save_chat
 from services.current_user import get_current_user
 
 from db.mongo import db
+from services.research_agent import research
+
+from services.writer_agent import  write_answer
 
 
 router = APIRouter(
@@ -43,48 +46,44 @@ def ask_question(
             detail="Access denied"
         )
 
-    points = get_context_chunks(
-        chat.question,
-        chat.workspace_id
-    )
+    notes = research(
+    chat.question,
+    chat.workspace_id
+)
 
-    chunks = [
-        point.payload["chunk_text"]
-        for point in points
-    ]
+    answer = write_answer(
+        chat.question,
+        notes
+    )
 
     sources = []
-    seen_files = set()
 
-    for point in points:
-
-        filename = point.payload.get(
-            "filename",
-            "Unknown"
+# workspace files
+    for filename in set(
+        notes["workspace_sources"]
+    ):
+        sources.append(
+            {
+                "type": "document",
+                "filename": filename
+            }
         )
 
-        if filename not in seen_files:
+    # web sources
+    for source in notes["sources"]:
+        sources.append(
+            {
+                "type": "web",
+                "title": source["title"],
+                "url": source["url"]
+            }
+        )
 
-            sources.append(
-                {
-                    "filename": filename
-                }
-            )
-
-            seen_files.add(
-                filename
-            )
-
-    answer = generate_answer(
-        chat.question,
-        chunks
-    )
-
-    save_chat(
-        chat.workspace_id,
-        chat.question,
-        answer
-    )
+        save_chat(
+            chat.workspace_id,
+            chat.question,
+            answer
+        )
 
     return {
         "question": chat.question,
@@ -136,3 +135,16 @@ def get_chat_history(
         chats.append(chat)
 
     return chats
+
+from services.tavily_service import search_web
+
+@router.get("/web-search")
+def web_search_test(
+    query: str
+):
+
+    results = search_web(
+        query
+    )
+
+    return results
