@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Markdown from "react-markdown"; // 1. Add the markdown import at the top
 import { getWorkspace, getWorkspaceDocuments, uploadDocument, deleteDocument, } from "../services/workspaceService";
-import { askQuestion, getChatHistory } from "../services/chatService";
-import { processDocument, embedDocument, generateSummary } from "../services/documentService";
-import { getDocumentUrl } from "../services/documentService";
+import { askQuestion, getChatHistory, clearChatHistory } from "../services/chatService";
+import { processDocument, embedDocument, generateSummary, getDocumentUrl } from "../services/documentService";
+
 
 
 function Workspace() {
@@ -60,6 +60,31 @@ function Workspace() {
     }
   };
 
+  const handleClearHistory =
+    async () => {
+
+      const confirmed =
+        window.confirm(
+          "Clear chat history?"
+        );
+
+      if (!confirmed) return;
+
+      try {
+
+        await clearChatHistory(
+          id
+        );
+
+        setChatHistory([]);
+        setAnswer("");
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+    };
   const handleUpload = async () => {
     if (!selectedFile) return;
 
@@ -268,6 +293,11 @@ function Workspace() {
           )}
 
           <h3>Chat History</h3>
+          <button
+            onClick={handleClearHistory}
+          >
+            Clear History
+          </button>
           {chatHistory.length === 0 ? (
             <p className="empty-log-text">Ask your first question.</p>
           ) : (

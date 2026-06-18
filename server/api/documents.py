@@ -387,8 +387,7 @@ def create_summary(
 
 @router.get("/view/{document_id}")
 def view_document(
-    document_id: str,
-    current_user=Depends(get_current_user)
+    document_id: str
 ):
     try:
         object_id = ObjectId(document_id)
@@ -406,8 +405,8 @@ def view_document(
         )
 
     workspace = db.workspaces.find_one({
-        "_id": ObjectId(document["workspace_id"]),
-        "user_id": str(current_user["_id"])
+        "_id": ObjectId(document["workspace_id"])
+        # "user_id": str(current_user["_id"])
     })
     if not workspace:
         raise HTTPException(
@@ -424,5 +423,5 @@ def view_document(
     return FileResponse(
         document["file_path"],
         media_type="application/pdf",
-        filename=document["filename"]
+        filename=document["filename"] #comment this to avoid downloading 
     )

@@ -29,3 +29,15 @@ export const getChatHistory = async (
 
     return response.data;
 };
+
+
+export const clearChatHistory =
+  async (workspaceId) => {
+
+    const response =
+      await apiClient.delete(
+        `/chat/history/${workspaceId}`
+      );
+
+    return response.data;
+  };

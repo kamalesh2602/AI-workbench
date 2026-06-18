@@ -136,6 +136,39 @@ def get_chat_history(
 
     return chats
 
+@router.delete("/history/{workspace_id}")
+def clear_chat_history(
+    workspace_id: str,
+    current_user=Depends(get_current_user)
+):
+
+    workspace = db.workspaces.find_one(
+        {
+            "_id": ObjectId(workspace_id),
+            "user_id": str(
+                current_user["_id"]
+            )
+        }
+    )
+
+    if not workspace:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+
+    db.chat_messages.delete_many(
+        {
+            "workspace_id": workspace_id
+        }
+    )
+
+    return {
+        "message":
+        "Chat history cleared"
+    }
+
+
 from services.tavily_service import search_web
 
 @router.get("/web-search")
