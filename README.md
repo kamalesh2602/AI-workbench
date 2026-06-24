@@ -1,4 +1,4 @@
-# CogniDesk
+#  CogniDesk
 
 **AI-Powered Workspace for Research and Document Intelligence**
 
